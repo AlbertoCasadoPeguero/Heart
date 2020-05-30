@@ -5,6 +5,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import classification_report
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import train_test_split
 
 #Importing the dataset
 dataset = pd.read_csv('heart.csv')
@@ -66,8 +70,27 @@ sns.heatmap(dataset.corr(),annot = True)
 columns_ = ['cp','fbs','restecg','exang','slope','ca','thal']
 X = pd.get_dummies(dataset.drop(['target'],axis = 1),columns = columns_,drop_first = True)
 
+#Gettiing my targets
+y = dataset.iloc[:,-1]
+
+#Splitting the dataset
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.20)
+
 #Scaling the features
 columns_to_scale = ['age','trestbps','chol','thalach','oldpeak']
 transformer = ColumnTransformer(transformers = [('scaler',StandardScaler(),columns_to_scale)],
                                 remainder = 'passthrough')
-X = transformer.fit_transform(X)
+X_train = transformer.fit_transform(X_train)
+X_test = transformer.transform(X_test)
+
+#Picking the best estimator
+
+#Naive Bayes - means score - 76% - report score 85%
+from sklearn.naive_bayes import GaussianNB
+naives = GaussianNB()
+naives_score = cross_val_score(naives,X_train, y_train,cv = 10)
+print(np.mean(naives_score))
+
+naives.fit(X_train, y_train)
+y_pred = naives.predict(X_test)
+print(classification_report(y_test,y_pred))
