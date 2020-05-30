@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler
 
 #Importing the dataset
 dataset = pd.read_csv('heart.csv')
@@ -59,3 +61,13 @@ sns.countplot('thal',hue = 'target',data = dataset)
 
 #Checking the correlation of the features, a few features are corralated but not too high
 sns.heatmap(dataset.corr(),annot = True)
+
+#OneHotEncoding the categorical features
+columns_ = ['cp','fbs','restecg','exang','slope','ca','thal']
+X = pd.get_dummies(dataset.drop(['target'],axis = 1),columns = columns_,drop_first = True)
+
+#Scaling the features
+columns_to_scale = ['age','trestbps','chol','thalach','oldpeak']
+transformer = ColumnTransformer(transformers = [('scaler',StandardScaler(),columns_to_scale)],
+                                remainder = 'passthrough')
+X = transformer.fit_transform(X)
