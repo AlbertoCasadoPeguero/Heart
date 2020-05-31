@@ -148,3 +148,5 @@ print(np.mean(tree_score))
 tree.fit(X_train, y_train)
 y_pred = tree.predict(X_test)
 print(classification_report(y_test,y_pred))
+
+#TODO - Implement PCA to reduce the features numbers and see if we can get better results
