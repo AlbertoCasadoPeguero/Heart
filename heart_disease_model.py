@@ -85,7 +85,7 @@ X_test = transformer.transform(X_test)
 
 #Picking the best estimator
 
-#Naive Bayes - means score - 76% - report score 85%
+#Naive Bayes - mean score = 76% - report score = 85%
 from sklearn.naive_bayes import GaussianNB
 naives = GaussianNB()
 naives_score = cross_val_score(naives,X_train, y_train,cv = 10)
@@ -93,4 +93,58 @@ print(np.mean(naives_score))
 
 naives.fit(X_train, y_train)
 y_pred = naives.predict(X_test)
+print(classification_report(y_test,y_pred))
+
+#KNeighbors - mean score = 82% - report score = 75%
+from sklearn.neighbors import KNeighborsClassifier
+knn = KNeighborsClassifier()
+params_grid = {'n_neighbors':[2,3,4,5,6,7,8,9,10]}
+grid_search = GridSearchCV(knn,params_grid,cv = 10)
+grid_search.fit(X_train,y_train)
+print(grid_search.best_params_)
+
+knn = KNeighborsClassifier(n_neighbors = 7)
+knn_score = cross_val_score(knn,X_train, y_train,cv = 10)
+print(np.mean(knn_score))
+
+knn.fit(X_train, y_train)
+y_pred = knn.predict(X_test)
+print(classification_report(y_test,y_pred))
+
+#SVC - mean score = 82% - report score = 77%
+from sklearn.svm import SVC
+svc = SVC()
+params_grid = {'C':[0.1,1,10,100],
+               'kernel':['linear','rbf','sigmoid'],
+               'gamma':[0.1,1,10,100]}
+grid_search =GridSearchCV(svc,params_grid, cv = 10)
+grid_search.fit(X_train, y_train)
+print(grid_search.best_params_)
+
+svc = SVC(C = 1,kernel = 'sigmoid',gamma = 0.1)
+svc_score = cross_val_score(svc,X_train, y_train,cv = 10)
+print(np.mean(svc_score))
+
+svc.fit(X_train, y_train)
+y_pred = svc.predict(X_test)
+print(classification_report(y_test,y_pred))
+
+#Decision Tree mean score = 79% - report score = 69%
+from sklearn.tree import DecisionTreeClassifier
+tree = DecisionTreeClassifier()
+params_grid = {'criterion':['gini','entropy'],
+               'max_depth':[1,2,3,4,5,6,7,8,9,10],
+               'min_samples_leaf':[1,2,3,4,5,6,7,8,9,10],
+               'min_samples_split':[2,3,4,5,6,7,8,9,10]}
+grid_search = GridSearchCV(tree,params_grid,cv = 10)
+grid_search.fit(X_train,y_train)
+print(grid_search.best_params_)
+
+tree = DecisionTreeClassifier(criterion = 'gini',max_depth = 1,min_samples_leaf = 1,
+                              min_samples_split = 2)
+tree_score = cross_val_score(tree,X_train,y_train, cv = 10)
+print(np.mean(tree_score))
+
+tree.fit(X_train, y_train)
+y_pred = tree.predict(X_test)
 print(classification_report(y_test,y_pred))
