@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report
 from sklearn.model_selection import cross_val_score
@@ -155,7 +154,7 @@ print(classification_report(y_test,y_pred))
 
 #Scaling the features
 columns_to_scale = ['age','trestbps','chol','thalach','oldpeak']
-transformer = ColumnTransformer(transformers = [('scaler',StandardScaler(),columns_to_scale)],
+transformer = ColumnTransformer(transformers = [('scaler',MinMaxScaler(feature_range = (0,1)),columns_to_scale)],
                                 remainder = 'passthrough')
 X = transformer.fit_transform(X)
 
@@ -165,7 +164,7 @@ pca.fit(X)
 plt.bar(range(0,pca.n_components_),pca.explained_variance_ratio_)
 plt.show()
 
-pca = PCA(n_components = 4)
+pca = PCA(n_components = 7)
 pca.fit(X)
 X = pca.transform(X)
 
@@ -174,7 +173,7 @@ X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.20)
 
 #Trying the estimators again with the dimension reduced
 
-#Naive Bayes - mean score = 74% - report score = 82%
+#Naive Bayes - mean score = 79% - report score = 79%
 from sklearn.naive_bayes import GaussianNB
 naives = GaussianNB()
 naives_score = cross_val_score(naives,X_train, y_train,cv = 10)
@@ -184,7 +183,7 @@ naives.fit(X_train, y_train)
 y_pred = naives.predict(X_test)
 print(classification_report(y_test,y_pred))
 
-#KNeighbors - mean score = 73% - report score = 82%
+#KNeighbors - mean score = 80% - report score = 84%
 from sklearn.neighbors import KNeighborsClassifier
 knn = KNeighborsClassifier()
 params_grid = {'n_neighbors':[2,3,4,5,6,7,8,9,10]}
@@ -192,7 +191,7 @@ grid_search = GridSearchCV(knn,params_grid,cv = 10)
 grid_search.fit(X_train,y_train)
 print(grid_search.best_params_)
 
-knn = KNeighborsClassifier(n_neighbors = 8)
+knn = KNeighborsClassifier(n_neighbors = 7)
 knn_score = cross_val_score(knn,X_train, y_train,cv = 10)
 print(np.mean(knn_score))
 
@@ -200,7 +199,7 @@ knn.fit(X_train, y_train)
 y_pred = knn.predict(X_test)
 print(classification_report(y_test,y_pred))
 
-#SVC - mean score = 79% - report score = 84%
+#SVC - mean score = 83% - report score = 77%
 from sklearn.svm import SVC
 svc = SVC()
 params_grid = {'C':[0.1,1,10,100],
@@ -210,7 +209,7 @@ grid_search =GridSearchCV(svc,params_grid, cv = 10)
 grid_search.fit(X_train, y_train)
 print(grid_search.best_params_)
 
-svc = SVC(C = 0.1,kernel = 'linear',gamma = 0.1)
+svc = SVC(C = 100,kernel = 'sigmoid',gamma = 0.1)
 svc_score = cross_val_score(svc,X_train, y_train,cv = 10)
 print(np.mean(svc_score))
 
@@ -218,7 +217,7 @@ svc.fit(X_train, y_train)
 y_pred = svc.predict(X_test)
 print(classification_report(y_test,y_pred))
 
-#Decision Tree mean score = 72% - report score = 66%
+#Decision Tree mean score = 82% - report score = 84%
 from sklearn.tree import DecisionTreeClassifier
 tree = DecisionTreeClassifier()
 params_grid = {'criterion':['gini','entropy'],
@@ -229,7 +228,7 @@ grid_search = GridSearchCV(tree,params_grid,cv = 10)
 grid_search.fit(X_train,y_train)
 print(grid_search.best_params_)
 
-tree = DecisionTreeClassifier(criterion = 'gini',max_depth = 5,min_samples_leaf = 10,
+tree = DecisionTreeClassifier(criterion = 'gini',max_depth = 2,min_samples_leaf = 1,
                               min_samples_split = 2)
 tree_score = cross_val_score(tree,X_train,y_train, cv = 10)
 print(np.mean(tree_score))
